@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BUILDORKILL
 
-## Getting Started
+**AI that decides whether to build your SaaS idea—and shows you exactly what to do next.**
 
-First, run the development server:
+A decision intelligence system for early-stage SaaS founders that delivers structured, investment-style decision reports.
+
+## Features
+
+- **Two Modes:** Normal (optimistic) and Brutal (critical) analysis
+- **Structured Scoring:** Market Demand, Competition, Monetization, Distribution, Founder Fit
+- **Verdicts:** BUILD, PIVOT, or KILL with detailed reasoning
+- **Execution Plans:** ICP, messaging, GTM channels, cold outreach scripts
+- **History:** LocalStorage persistence for all past decisions
+- **Dark Mode:** High-contrast UI with color-coded verdicts
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy `.env.example` to `.env.local` and add your OpenRouter API key:
+   ```
+   OPENROUTER_API_KEY=your_api_key_here
+   ```
+4. Get your free API key at [OpenRouter](https://openrouter.ai/keys)
+
+## Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to use the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deploy to Vercel or Render. Set the `OPENROUTER_API_KEY` environment variable in your hosting dashboard.
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Frontend:** Next.js 16 + Tailwind CSS
+- **AI:** OpenRouter API (`openrouter/elephant-alpha`)
+- **Storage:** Browser LocalStorage
