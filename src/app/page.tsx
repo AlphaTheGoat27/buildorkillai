@@ -203,21 +203,19 @@ ${plan.emailScript}
           <div className="flex items-center gap-4 bg-zinc-900 rounded-full p-1">
             <button
               onClick={() => setBrutalMode(false)}
-              className={`px-6 py-2 rounded-full transition-all ${
-                !brutalMode
+              className={`px-6 py-2 rounded-full transition-all ${!brutalMode
                   ? "bg-green-600 text-white font-semibold"
                   : "text-zinc-400 hover:text-white"
-              }`}
+                }`}
             >
               NORMAL
             </button>
             <button
               onClick={() => setBrutalMode(true)}
-              className={`px-6 py-2 rounded-full transition-all ${
-                brutalMode
+              className={`px-6 py-2 rounded-full transition-all ${brutalMode
                   ? "bg-red-600 text-white font-semibold animate-pulse-glow"
                   : "text-zinc-400 hover:text-white"
-              }`}
+                }`}
             >
               BRUTAL
             </button>
@@ -318,15 +316,14 @@ ${plan.emailScript}
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-2 flex-1 rounded ${
-                        i < verdict.scoring.marketDemand
+                      className={`h-2 flex-1 rounded ${i < verdict.scoring.marketDemand
                           ? verdict.scoring.marketDemand >= 7
                             ? "bg-green-500"
                             : verdict.scoring.marketDemand >= 4
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           : "bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -343,15 +340,14 @@ ${plan.emailScript}
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-2 flex-1 rounded ${
-                        i < verdict.scoring.competitionIntensity
+                      className={`h-2 flex-1 rounded ${i < verdict.scoring.competitionIntensity
                           ? verdict.scoring.competitionIntensity >= 7
                             ? "bg-red-500"
                             : verdict.scoring.competitionIntensity >= 4
                               ? "bg-yellow-500"
                               : "bg-green-500"
                           : "bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -368,15 +364,14 @@ ${plan.emailScript}
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-2 flex-1 rounded ${
-                        i < verdict.scoring.monetizationPotential
+                      className={`h-2 flex-1 rounded ${i < verdict.scoring.monetizationPotential
                           ? verdict.scoring.monetizationPotential >= 7
                             ? "bg-green-500"
                             : verdict.scoring.monetizationPotential >= 4
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           : "bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -393,15 +388,14 @@ ${plan.emailScript}
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-2 flex-1 rounded ${
-                        i < verdict.scoring.distributionEase
+                      className={`h-2 flex-1 rounded ${i < verdict.scoring.distributionEase
                           ? verdict.scoring.distributionEase >= 7
                             ? "bg-green-500"
                             : verdict.scoring.distributionEase >= 4
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           : "bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -416,15 +410,14 @@ ${plan.emailScript}
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`h-2 flex-1 rounded ${
-                        i < verdict.scoring.founderFit
+                      className={`h-2 flex-1 rounded ${i < verdict.scoring.founderFit
                           ? verdict.scoring.founderFit >= 7
                             ? "bg-green-500"
                             : verdict.scoring.founderFit >= 4
                               ? "bg-yellow-500"
                               : "bg-red-500"
                           : "bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -527,7 +520,7 @@ ${plan.emailScript}
                 </div>
               )}
 
-              {verdict.similarBenchmarks.length > 0 && (
+              {(verdict.similarBenchmarks?.length ?? 0) > 0 && (
                 <div className="bg-black/50 rounded-lg p-6">
                   <h3 className="text-xl font-bold text-purple-400 mb-3 flex items-center gap-2">
                     <span>🏢</span> SIMILAR BENCHMARKS
