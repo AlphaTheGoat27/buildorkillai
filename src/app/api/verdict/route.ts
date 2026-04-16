@@ -103,17 +103,64 @@ Rules:
 - SHRED generic advice. Be SPECIFIC.
 - Return ONLY the JSON, no additional text`;
 
+async function callGroq(
+  systemPrompt: string,
+  userInput: string,
+): Promise<Response> {
+  const apiKey = process.env.GROQ_API_KEY;
+  return fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userInput },
+      ],
+      max_tokens: 2000,
+    }),
+  });
+}
+
+async function callOpenRouter(
+  systemPrompt: string,
+  userInput: string,
+): Promise<Response> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  return fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "openrouter/elephant-alpha",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userInput },
+      ],
+      max_tokens: 2000,
+    }),
+  });
+}
+
+function parseVerdict(text: string): VerdictResult | null {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0]) as VerdictResult;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "API key not configured" },
-        { status: 500 },
-      );
-    }
-
     const body = await request.json();
     const { problem, solution, audience, context, brutalMode } = body;
 
@@ -133,40 +180,38 @@ Optional Context: ${context || "None provided"}`;
       ? SYSTEM_PROMPT_BRUTAL
       : SYSTEM_PROMPT_NORMAL;
 
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "openrouter/elephant-alpha",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userInput },
-          ],
-          max_tokens: 2000,
-        }),
-      },
-    );
+    let response: Response;
+    let provider = "groq";
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("OpenRouter error:", error);
-      return NextResponse.json(
-        { error: error.error?.message || "Failed to generate verdict" },
-        { status: 500 },
-      );
+    const groqResponse = await callGroq(systemPrompt, userInput);
+
+    if (groqResponse.ok) {
+      response = groqResponse;
+      provider = "groq";
+    } else {
+      console.log("Groq failed, trying OpenRouter...");
+      const openRouterResponse = await callOpenRouter(systemPrompt, userInput);
+
+      if (openRouterResponse.ok) {
+        response = openRouterResponse;
+        provider = "openrouter";
+      } else {
+        const groqError = await groqResponse.json();
+        const openRouterError = await openRouterResponse.json();
+        console.error("Groq error:", groqError);
+        console.error("OpenRouter error:", openRouterError);
+        return NextResponse.json(
+          { error: "All AI providers failed" },
+          { status: 500 },
+        );
+      }
     }
 
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content?.trim() || "";
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]) as VerdictResult;
+    const parsed = parseVerdict(text);
+    if (parsed) {
       return NextResponse.json(parsed);
     }
 

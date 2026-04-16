@@ -38,14 +38,18 @@ interface HistoryItem {
 }
 
 const LOADING_MESSAGES = [
-  "Analyzing market saturation...",
-  "Checking competitor funding rounds...",
-  "Evaluating monetization potential...",
-  "Assessing distribution channels...",
-  "Calculating founder fit score...",
-  "Running contrarian analysis...",
-  "Cross-referencing benchmarks...",
-  "Formulating brutal truth...",
+  "Neural networks firing up...",
+  "Scanning 10,000+ startup patterns...",
+  "Cross-referencing market signals...",
+  "Calculating competitive moat index...",
+  "Evaluating monetization vectors...",
+  "Analyzing distribution channels...",
+  "Running founder-market fit algorithm...",
+  "Processing contrarian insights...",
+  "Benchmarking against unicorn data...",
+  "Synthesizing brutal truths...",
+  "Generating execution blueprint...",
+  "Finalizing your fate...",
 ];
 
 export default function Home() {
