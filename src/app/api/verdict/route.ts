@@ -1,10 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextRequest, NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(
-  process.env.NEXT_PUBLIC_GEMINI_API_KEY || "",
-);
-
-export interface VerdictResult {
+interface VerdictResult {
   verdict: "BUILD" | "PIVOT" | "KILL";
   finalScore: number;
   scoring: {
@@ -92,7 +89,7 @@ Return a JSON object with this exact structure:
   "executionPlan": {
     "icp": "Precise ICP that fits this specific opportunity",
     "messaging": "Punch-you-in-the-face landing page hook",
-    "gtmPlan": ["Channel 1", "Channel 2", ... up to 10 channels ranked by effectiveness"],
+    "gtmPlan": ["Channel 1", "Channel 2", ... up to 10 channels ranked by effectiveness],
     "coldDmScript": "Cold DM that's actually going to get responses",
     "emailScript": "Cold email that doesn't sound like spam"
   },
@@ -107,41 +104,59 @@ Rules:
 - SHRED generic advice. Be SPECIFIC.
 - Return ONLY the JSON, no additional text`;
 
-export async function getVerdict(
-  idea: {
-    problem: string;
-    solution: string;
-    audience: string;
-    context?: string;
-  },
-  brutalMode: boolean,
-): Promise<VerdictResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const userInput = `Problem Statement: ${idea.problem}
-Proposed Solution: ${idea.solution}
-Target Audience: ${idea.audience}
-Optional Context: ${idea.context || "None provided"}`;
-
-  const systemPrompt = brutalMode ? SYSTEM_PROMPT_BRUTAL : SYSTEM_PROMPT_NORMAL;
-
-  const result = await model.generateContent([
-    { text: systemPrompt },
-    { text: userInput },
-  ]);
-
-  const response = await result.response;
-  const text = response.text().trim();
-
+export async function POST(request: NextRequest) {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "API key not configured" },
+        { status: 500 },
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const body = await request.json();
+    const { problem, solution, audience, context, brutalMode } = body;
+
+    if (!problem || !solution || !audience) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    const userInput = `Problem Statement: ${problem}
+Proposed Solution: ${solution}
+Target Audience: ${audience}
+Optional Context: ${context || "None provided"}`;
+
+    const systemPrompt = brutalMode
+      ? SYSTEM_PROMPT_BRUTAL
+      : SYSTEM_PROMPT_NORMAL;
+
+    const result = await model.generateContent([
+      { text: systemPrompt },
+      { text: userInput },
+    ]);
+
+    const response = await result.response;
+    const text = response.text().trim();
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return parsed as VerdictResult;
+      const parsed = JSON.parse(jsonMatch[0]) as VerdictResult;
+      return NextResponse.json(parsed);
     }
+
     throw new Error("No valid JSON found in response");
   } catch (error) {
-    console.error("Failed to parse Gemini response:", error);
-    throw new Error("Failed to get valid response from AI");
+    console.error("Verdict API error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate verdict" },
+      { status: 500 },
+    );
   }
 }

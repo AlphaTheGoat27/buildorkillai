@@ -1,7 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getVerdict, VerdictResult } from "@/lib/gemini";
+
+interface VerdictResult {
+  verdict: "BUILD" | "PIVOT" | "KILL";
+  finalScore: number;
+  scoring: {
+    marketDemand: number;
+    competitionIntensity: number;
+    monetizationPotential: number;
+    distributionEase: number;
+    founderFit: number;
+  };
+  brutalTruth: string;
+  realityCheck: string;
+  contrarianInsight: string;
+  executionPlan?: {
+    icp: string;
+    messaging: string;
+    gtmPlan: string[];
+    coldDmScript: string;
+    emailScript: string;
+  };
+  similarBenchmarks: string[];
+}
 
 interface HistoryItem {
   id: string;
@@ -68,10 +90,24 @@ export default function Home() {
     const interval = runLoadingAnimation();
 
     try {
-      const result = await getVerdict(
-        { problem, solution, audience, context },
-        brutalMode,
-      );
+      const response = await fetch("/api/verdict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problem,
+          solution,
+          audience,
+          context,
+          brutalMode,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get verdict");
+      }
+
+      const result: VerdictResult = await response.json();
       setVerdict(result);
 
       const newHistoryItem: HistoryItem = {
@@ -83,7 +119,11 @@ export default function Home() {
       setHistory((prev) => [newHistoryItem, ...prev.slice(0, 9)]);
     } catch (error) {
       console.error("Error getting verdict:", error);
-      alert("Failed to get verdict. Please check your API key.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to get verdict. Please check your API key.",
+      );
     } finally {
       clearInterval(interval);
       setIsLoading(false);
