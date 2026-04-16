@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
 interface VerdictResult {
@@ -106,7 +105,7 @@ Rules:
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
@@ -114,9 +113,6 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const body = await request.json();
     const { problem, solution, audience, context, brutalMode } = body;
@@ -137,13 +133,36 @@ Optional Context: ${context || "None provided"}`;
       ? SYSTEM_PROMPT_BRUTAL
       : SYSTEM_PROMPT_NORMAL;
 
-    const result = await model.generateContent([
-      { text: systemPrompt },
-      { text: userInput },
-    ]);
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "openrouter/elephant-alpha",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userInput },
+          ],
+          max_tokens: 2000,
+        }),
+      },
+    );
 
-    const response = await result.response;
-    const text = response.text().trim();
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("OpenRouter error:", error);
+      return NextResponse.json(
+        { error: error.error?.message || "Failed to generate verdict" },
+        { status: 500 },
+      );
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content?.trim() || "";
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
