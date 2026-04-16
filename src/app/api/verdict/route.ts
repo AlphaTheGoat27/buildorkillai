@@ -262,7 +262,7 @@ Remember: You are operating in ${modeLabel} mode. Apply the full ${modeLabel} ev
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "meta-llama/llama-3.1-8b-instruct:free",
+          model: "openrouter/elephant-alpha",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userInput },
