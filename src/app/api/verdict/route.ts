@@ -95,12 +95,17 @@ Return a JSON object with this exact structure:
   "similarBenchmarks": ["Companies that tried this and FAILED", "One that succeeded (rare)"]
 }
 
-Rules:
-- If finalScore >= 7: verdict is BUILD (rare—be skeptical)
-- If finalScore >= 4 and < 7: verdict is PIVOT (most ideas pivot)
-- If finalScore < 4: verdict is KILL (be ready to crush dreams)
-- For KILL verdicts, executionPlan can be null
-- SHRED generic advice. Be SPECIFIC.
+BRUTAL RULES - FOLLOW THESE EXACTLY:
+- Competition score of 5+ means this market is CROWDED: score 6-8
+- Generic "reminder" apps score LOW on originality: marketDemand capped at 5
+- $5/month subscription = razor thin margins: monetizationPotential max 5
+- If similar apps exist (Greg, Planta, BloomIQ, etc.): PIVOT or KILL
+- No moat = no defensibility = KILL
+- finalScore >= 8: BUILD (only 5% of ideas deserve this)
+- finalScore >= 5 and < 8: PIVOT (need major differentiation)
+- finalScore < 5: KILL (most ideas go here)
+- For KILL verdicts, executionPlan must be null
+- Be SAVAGE. Tell them why their idea will DIE.
 - Return ONLY the JSON, no additional text`;
 
 async function callGroq(
